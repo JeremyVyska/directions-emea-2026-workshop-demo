@@ -1,0 +1,44 @@
+# Review receipt gate for GitHub Actions (reference / take-home).
+#
+# What it does: on every PR, checks that the author's agent ran the review locally
+# and committed a report with zero open blockers. It runs no LLM and needs no secrets.
+#
+# Plug-in steps for your own repo:
+#   1. Save this file as .github/workflows/review-receipt-gate.yml
+#   2. Copy check-review-receipt.ps1 to the path in SCRIPT below (or change SCRIPT).
+#   3. Decide where reports live and set REPORTS (default workshop/reviews).
+#   4. Merge to your default branch once, so the check appears.
+#   5. Make it required: Settings → Rules → Rulesets (or Branches → branch protection)
+#      → "Require status checks to pass" → add "Review receipt".
+#   6. Optional: add -RestrictPaths to the script call to limit PRs to rules + reports
+#      (only useful for a knowledge repo like the workshop's, not for an app repo).
+
+name: Review receipt gate
+
+on:
+  pull_request:
+    branches: [main]          # your default branch
+
+permissions:
+  contents: read
+
+env:
+  SCRIPT: ./.github/scripts/check-review-receipt.ps1
+  REPORTS: reviews
+
+jobs:
+  gate:
+    name: Review receipt
+    runs-on: ubuntu-latest    # pwsh is preinstalled on GitHub-hosted runners
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Check review receipt
+        shell: pwsh
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          & $env:SCRIPT -BaseRef $env:BASE_SHA -ReportFolder $env:REPORTS
