@@ -6,4 +6,4 @@ Demo repo for the Directions EMEA 2026 lab **"Agentic as a Team Sport"**. It sho
 - The agent commits its report to `reviews/`.
 - The PR check (`.github/workflows/review-receipt-gate.yml` → `.github/scripts/check-review-receipt.ps1`) only checks that the receipt exists and has no open blockers. No LLM, no API key, no secrets in CI.
 
-See the pull requests: the same change with and without a receipt.
+Agents learn how to produce the receipt from [`AGENTS.md`](AGENTS.md). See the pull requests: the same change with and without a receipt.
