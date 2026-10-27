@@ -4,16 +4,20 @@ using AmuseYou.BookingCore;
 
 codeunit 50201 BookingMgt implements IBookingProvider
 {
+    var
+        BookingNoMissingErr: Label 'Booking number must be specified.';
+        EquipmentNotAvailableErr: Label 'Equipment %1 is not available for the selected dates.', Comment = '%1 = Equipment No.';
+
     procedure CreateBooking(var Booking: Record Booking): Boolean
     var
         AvailabilityMgt: Codeunit AvailabilityMgt;
         Message: Text;
     begin
         if Booking."Booking No." = '' then
-            Error('Booking number must be specified.');
+            Error(BookingNoMissingErr);
 
         if not AvailabilityMgt.IsEquipmentAvailable(Booking."Equipment No.", Booking."Start Date", Booking."End Date") then
-            Error('Equipment %1 is not available for the selected dates.', Booking."Equipment No.");
+            Error(EquipmentNotAvailableErr, Booking."Equipment No.");
 
         Booking.Status := BookingStatus::Pending;
         CalculateBookingAmount(Booking);
